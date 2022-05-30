@@ -21,10 +21,15 @@ fn main() -> ! {
 
     let mut pwm = dp.TIM1.pwm(pin, 100.hz(), &mut rcc);
 
-    pwm.set_duty(pwm.get_max_duty() / 2);
     pwm.enable();
 
     loop {
+        for i in 0..pwm.get_max_duty() {
+            pwm.set_duty(i);
+        }
+        for i in (0..pwm.get_max_duty()).rev() {
+            pwm.set_duty(i);
+        }
         cortex_m::asm::nop()
     }
 }

@@ -64,32 +64,26 @@ mpu6050 = "0.1.4"
 bme680 = "0.6.0"
 embedded-sdmmc = "0.3.0"
 
-#TODO: Separate feature sets
 [features]
-default = ["rt"]
+device-selected = []
+doc = []
 rt = ["stm32g4/rt"]
-stm32g431 = ["stm32g4/stm32g431"]
-stm32g441 = ["stm32g4/stm32g441"]
-stm32g471 = ["stm32g4/stm32g471"]
-stm32g473 = ["stm32g4/stm32g473"]
-stm32g474 = ["stm32g4/stm32g474"]
-stm32g483 = ["stm32g4/stm32g483"]
-stm32g484 = ["stm32g4/stm32g484"]
-stm32g491 = ["stm32g4/stm32g491"]
-stm32g4a1 = ["stm32g4/stm32g4a1"]
-log-itm = ["cortex-m-log/itm"]
-log-rtt = []
-log-semihost = ["cortex-m-log/semihosting"]
-unstable-defmt = ["defmt"]
+stm32g431 = ["stm32g4/stm32g431", "device-selected"]
+stm32g441 = ["stm32g4/stm32g441", "device-selected"]
+stm32g471 = ["stm32g4/stm32g471", "device-selected"]
+stm32g473 = ["stm32g4/stm32g473", "device-selected"]
+stm32g474 = ["stm32g4/stm32g474", "device-selected"]
+stm32g483 = ["stm32g4/stm32g483", "device-selected"]
+stm32g484 = ["stm32g4/stm32g484", "device-selected"]
+stm32g491 = ["stm32g4/stm32g491", "device-selected"]
+stm32g4a1 = ["stm32g4/stm32g4a1", "device-selected"]
+
 
 [profile.dev]
-codegen-units = 1
-debug = true
 incremental = false
-lto = false
+codegen-units = 1
 
 [profile.release]
-debug = false
 codegen-units = 1
-incremental = false
+debug = true
 lto = true

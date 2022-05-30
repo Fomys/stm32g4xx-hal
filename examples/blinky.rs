@@ -1,29 +1,22 @@
-#![deny(warnings)]
 #![deny(unsafe_code)]
-#![no_main]
 #![no_std]
+#![no_main]
 
-use hal::prelude::*;
-use hal::stm32;
-use stm32g4xx_hal as hal;
+use panic_halt as _;
+
+use nb::block;
 
 use cortex_m_rt::entry;
-use log::info;
-
-#[macro_use]
-mod utils;
+use stm32g4xx_hal::{pac, prelude::*, timer::Timer};
 
 #[entry]
 fn main() -> ! {
-    utils::logger::init();
+    let cp = cortex_m::Peripherals::take().unwrap();
+    let dp = pac
 
-    info!("start");
-    let dp = stm32::Peripherals::take().expect("cannot take peripherals");
     let mut rcc = dp.RCC.constrain();
-
-    info!("Init Led");
     let gpioa = dp.GPIOA.split(&mut rcc);
-    let mut led = gpioa.pa5.into_push_pull_output();
+    let mut led = gpioa.pa2.into_push_pull_output();
 
     loop {
         info!("Set Led low");

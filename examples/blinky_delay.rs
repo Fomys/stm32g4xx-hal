@@ -27,7 +27,7 @@ fn main() -> ! {
 
     info!("Init Led");
     let gpioa = dp.GPIOA.split(&mut rcc);
-    let mut led = gpioa.pa5.into_push_pull_output();
+    let mut led = gpioa.pa2.into_push_pull_output();
 
     info!("Init SYST delay");
     let mut delay_syst = cp.SYST.delay(&rcc.clocks);
