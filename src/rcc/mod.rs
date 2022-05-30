@@ -1,5 +1,4 @@
-use crate::stm32::{rcc, FLASH, PWR, RCC};
-use crate::time::{Hertz, U32Ext};
+use crate::pac::{rcc, FLASH, PWR, RCC};
 
 mod clockout;
 mod config;
@@ -259,7 +258,8 @@ impl RccExt for RCC {
     }
 }
 
-use crate::stm32::rcc::RegisterBlock as RccRB;
+use crate::pac::rcc::RegisterBlock as RccRB;
+use crate::time::{Hertz, U32Ext};
 
 pub struct AHB1 {
     _0: (),

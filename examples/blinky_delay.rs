@@ -18,7 +18,7 @@ mod utils;
 
 #[entry]
 fn main() -> ! {
-    utils::logger::init();
+    /*utils::logger::init();
 
     info!("start");
     let dp = stm32::Peripherals::take().expect("cannot take peripherals");
@@ -45,5 +45,6 @@ fn main() -> ! {
         led.toggle().unwrap();
         info!("TIM2 delay");
         delay_tim2.delay_ms(1000_u16);
-    }
+    }*/
+    loop {}
 }

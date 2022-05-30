@@ -1,8 +1,8 @@
 use crate::gpio::*;
+use crate::pac::RCC;
 use crate::rcc::*;
-use crate::stm32::RCC;
 
-pub type LscoPin = gpioa::PA2<DefaultMode>;
+/*pub type LscoPin = gpioa::PA2<DefaultMode>;
 
 pub struct Lsco {
     pin: gpioa::PA2<Alternate<AF0>>,
@@ -47,7 +47,7 @@ impl LSCOExt for LscoPin {
         }
     }
 }
-
+*/
 pub struct Mco<PIN> {
     pin: PIN,
     src_bits: u8,
@@ -120,7 +120,8 @@ macro_rules! mco {
     };
 }
 
-use crate::gpio::gpioa::PA8;
-use crate::gpio::gpiog::PG10;
+// TODO
+//use crate::gpio::gpioa::PA8;
+//use crate::gpio::gpiog::PG10;
 
-mco!(PA8, PG10);
+//mco!(PA8, PG10);

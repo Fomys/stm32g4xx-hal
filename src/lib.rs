@@ -1,3 +1,5 @@
+#![no_std]
+
 // If no target specified, print error message.
 #[cfg(not(any(
     feature = "stm32g431",
@@ -57,6 +59,44 @@ compile_error!(
 
 #[cfg(feature = "device-selected")]
 use embedded_hal as hal;
+pub extern crate stm32g4;
+
+#[cfg(feature = "stm32g431")]
+pub use stm32g4::stm32g431 as pac;
+
+/*#[cfg(feature = "stm32g441")]
+pub use stm32g4::stm32g441 as pac;
+
+#[cfg(feature = "stm32g471")]
+pub use stm32g4::stm32g471 as pac;
+
+#[cfg(feature = "stm32g473")]
+pub use stm32g4::stm32g473 as pac;
+
+#[cfg(feature = "stm32g474")]
+pub use stm32g4::stm32g474 as pac;
+
+#[cfg(feature = "stm32g483")]
+pub use stm32g4::stm32g483 as pac;
+
+#[cfg(feature = "stm32g484")]
+pub use stm32g4::stm32g484 as pac;
+
+#[cfg(feature = "stm32g491")]
+pub use stm32g4::stm32g491 as pac;
+
+#[cfg(feature = "stm32g4a1")]
+pub use stm32g4::stm32g4a1 as pac;*/
+
+pub mod gpio;
+// TODO: everything
+pub mod bb;
+pub mod rcc;
+pub mod time;
+mod sealed {
+    pub trait Sealed {}
+}
+use sealed::Sealed;
 
 /*
 mod gpio;

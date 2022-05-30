@@ -7,25 +7,22 @@ use panic_halt as _;
 use nb::block;
 
 use cortex_m_rt::entry;
-use stm32g4xx_hal::{pac, prelude::*, timer::Timer};
+use stm32g4xx_hal::gpio::GpioExt;
+use stm32g4xx_hal::pac;
+use stm32g4xx_hal::rcc::RccExt;
+//use stm32g4xx_hal::{pac, prelude::*, timer::Timer};
 
 #[entry]
 fn main() -> ! {
-    let cp = cortex_m::Peripherals::take().unwrap();
-    let dp = pac
-
-    let mut rcc = dp.RCC.constrain();
-    let gpioa = dp.GPIOA.split(&mut rcc);
-    let mut led = gpioa.pa2.into_push_pull_output();
-
+    let dp = pac::Peripherals::take().unwrap();
+    let gpioa = dp.GPIOA.split();
+    let mut led = gpioa.pa1.into_push_pull_output();
     loop {
-        info!("Set Led low");
         for _ in 0..100_000 {
-            led.set_low().unwrap();
+            led.set_low();
         }
-        info!("Set Led High");
         for _ in 0..100_000 {
-            led.set_high().unwrap();
+            led.set_high();
         }
     }
 }

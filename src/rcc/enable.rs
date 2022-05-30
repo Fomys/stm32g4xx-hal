@@ -3,7 +3,7 @@ use crate::bb;
 
 macro_rules! bus_enable {
     ($PER:ident => ($busX:ty, $bit:literal)) => {
-        impl Enable for crate::stm32::$PER {
+        impl Enable for crate::pac::$PER {
             #[inline(always)]
             fn enable(rcc: &RccRB) {
                 unsafe {
@@ -24,7 +24,7 @@ macro_rules! bus_enable {
 
 macro_rules! bus_reset {
     ($PER:ident => ($busX:ty, $bit:literal)) => {
-        impl Reset for crate::stm32::$PER {
+        impl Reset for crate::pac::$PER {
             #[inline(always)]
             fn reset(rcc: &RccRB) {
                 unsafe {
@@ -39,11 +39,11 @@ macro_rules! bus_reset {
 macro_rules! bus {
     ($($PER:ident => ($busX:ty, $bit:literal),)+) => {
         $(
-            impl crate::Sealed for crate::stm32::$PER {}
-            impl RccBus for crate::stm32::$PER {
+            impl crate::Sealed for crate::pac::$PER {}
+            impl RccBus for crate::pac::$PER {
                 type Bus = $busX;
             }
-            impl crate::rcc::Instance for crate::stm32::$PER {}
+            impl crate::rcc::Instance for crate::pac::$PER {}
             bus_enable!($PER => ($busX, $bit));
             bus_reset!($PER => ($busX, $bit));
         )+
