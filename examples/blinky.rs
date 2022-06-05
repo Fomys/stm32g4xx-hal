@@ -7,10 +7,9 @@ use panic_halt as _;
 use nb::block;
 
 use cortex_m_rt::entry;
+use embedded_hal::digital::blocking::OutputPin;
 use stm32g4xx_hal::gpio::GpioExt;
 use stm32g4xx_hal::pac;
-use stm32g4xx_hal::rcc::RccExt;
-//use stm32g4xx_hal::{pac, prelude::*, timer::Timer};
 
 #[entry]
 fn main() -> ! {
