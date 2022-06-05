@@ -102,26 +102,95 @@ impl PinMode for Output<OpenDrain> {
 }
 
 pub struct Pin<const P: char, const N: u8, MODE = Analog> {
-    mode: MODE,
+    _mode: PhantomData<MODE>,
 }
 
-impl<const P: char, const N: u8, MODE> Pin<P, N, MODE> {
-    #[inline]
-    fn mode<NewMode: PinMode>(&mut self) {
-        let gpio = unsafe { &(*Gpio::<P>::ptr()) };
-        unsafe {
-            // Set the mode in the register N*2 as there is two bits to configure
-            gpio.moder
-                .modify(|r, w| w.bits((r.bits() & !(0b11 << N * 2)) | (NewMode::MODE << N * 2)));
-            // Write the config into the type register
-            gpio.otyper
-                .modify(|r, w| w.bits((r.bits() & !(0b1 << N)) | (NewMode::TYPE << N)));
-            // Write the config into the pull-up/pull-down register
-            gpio.pupdr
-                .modify(|r, w| w.bits((r.bits() & !(0b11 << N * 2)) | (NewMode::PULL << N * 2)));
-        };
-    }
+// impl<const P: char, const N: u8> From<Pin<P, N, Analog>> for Pin<P, N, Output<PushPull>> {
+//     fn from(p: Pin<P, N, Analog>) -> Self {
+//         let gpio = unsafe { &(*Gpio::<P>::ptr()) };
+//         unsafe {
+//             // Set the mode in the register N*2 as there is two bits to configure
+//             gpio.moder.modify(|r, w| {
+//                 w.bits((r.bits() & !(0b11 << N * 2)) | (Output::<PushPull>::MODE << N * 2))
+//             });
+//             // Write the config into the type register
+//             gpio.otyper
+//                 .modify(|r, w| w.bits((r.bits() & !(0b1 << N)) | (Output::<PushPull>::TYPE << N)));
+//             // Write the config into the pull-up/pull-down register
+//             gpio.pupdr.modify(|r, w| {
+//                 w.bits((r.bits() & !(0b11 << N * 2)) | (Output::<PushPull>::PULL << N * 2))
+//             });
+//         };
+//         Self {
+//             _mode: Default::default(),
+//         }
+//     }
+// }
 
+macro_rules! convert_pin {
+    ($input:ty, $output:ty) => {
+        impl<const P: char, const N: u8> From<Pin<P, N, $input>> for Pin<P, N, $output> {
+            fn from(_: Pin<P, N, $input>) -> Self {
+                let gpio = unsafe { &(*Gpio::<P>::ptr()) };
+                unsafe {
+                    // Set the mode in the register N*2 as there is two bits to configure
+                    gpio.moder.modify(|r, w| {
+                        w.bits((r.bits() & !(0b11 << N * 2)) | (<$output>::MODE << N * 2))
+                    });
+                    // Write the config into the type register
+                    gpio.otyper
+                        .modify(|r, w| w.bits((r.bits() & !(0b1 << N)) | (<$output>::TYPE << N)));
+                    // Write the config into the pull-up/pull-down register
+                    gpio.pupdr.modify(|r, w| {
+                        w.bits((r.bits() & !(0b11 << N * 2)) | (<$output>::PULL << N * 2))
+                    });
+                };
+                Self {
+                    _mode: Default::default(),
+                }
+            }
+        }
+    };
+}
+
+// Impl from for all gpio types
+convert_pin!(Analog, Input<Floating>);
+convert_pin!(Analog, Input<PullUp>);
+convert_pin!(Analog, Input<PullDown>);
+convert_pin!(Analog, Output<PushPull>);
+convert_pin!(Analog, Output<OpenDrain>);
+
+convert_pin!(Input<Floating>, Analog);
+convert_pin!(Input<Floating>, Input<PullUp>);
+convert_pin!(Input<Floating>, Input<PullDown>);
+convert_pin!(Input<Floating>, Output<PushPull>);
+convert_pin!(Input<Floating>, Output<OpenDrain>);
+
+convert_pin!(Input<PullUp>, Analog);
+convert_pin!(Input<PullUp>, Input<Floating>);
+convert_pin!(Input<PullUp>, Input<PullDown>);
+convert_pin!(Input<PullUp>, Output<PushPull>);
+convert_pin!(Input<PullUp>, Output<OpenDrain>);
+
+convert_pin!(Input<PullDown>, Analog);
+convert_pin!(Input<PullDown>, Input<Floating>);
+convert_pin!(Input<PullDown>, Input<PullUp>);
+convert_pin!(Input<PullDown>, Output<PushPull>);
+convert_pin!(Input<PullDown>, Output<OpenDrain>);
+
+convert_pin!(Output<PushPull>, Analog);
+convert_pin!(Output<PushPull>, Input<Floating>);
+convert_pin!(Output<PushPull>, Input<PullUp>);
+convert_pin!(Output<PushPull>, Input<PullDown>);
+convert_pin!(Output<PushPull>, Output<OpenDrain>);
+
+convert_pin!(Output<OpenDrain>, Analog);
+convert_pin!(Output<OpenDrain>, Input<Floating>);
+convert_pin!(Output<OpenDrain>, Input<PullUp>);
+convert_pin!(Output<OpenDrain>, Input<PullDown>);
+convert_pin!(Output<OpenDrain>, Output<PushPull>);
+
+impl<const P: char, const N: u8, MODE> Pin<P, N, MODE> {
     #[inline(always)]
     fn _set_state(&mut self, state: PinState) {
         match state {
@@ -141,11 +210,6 @@ impl<const P: char, const N: u8, MODE> Pin<P, N, MODE> {
     }
 
     #[inline(always)]
-    pub fn into_push_pull_output(self) -> Pin<P, N, Output<PushPull>> {
-        self.into_push_pull_output_with_state(PinState::Low)
-    }
-
-    #[inline(always)]
     fn _is_set_high(&self) -> bool {
         unsafe { (*Gpio::<P>::ptr()).odr.read().bits() & (1 << N) == 1 << N }
     }
@@ -153,18 +217,6 @@ impl<const P: char, const N: u8, MODE> Pin<P, N, MODE> {
     #[inline(always)]
     fn _is_high(&self) -> bool {
         unsafe { (*Gpio::<P>::ptr()).idr.read().bits() & (1 << N) == 1 << N }
-    }
-
-    /// Configures the pin to operate as an push-pull output pin.
-    /// `initial_state` specifies whether the pin should be initially high or low.
-    #[inline]
-    pub fn into_push_pull_output_with_state(
-        mut self,
-        initial_state: PinState,
-    ) -> Pin<P, N, Output<PushPull>> {
-        self._set_state(initial_state);
-        self.mode::<Output<PushPull>>();
-        Pin::new()
     }
 }
 
@@ -184,8 +236,6 @@ impl<const P: char> Gpio<P> {
         }
     }
 }
-
-pub type PA1<MODE = Output<PushPull>> = Pin<'A', 1, MODE>;
 
 // /// GPIO parts
 // pub struct Parts {
@@ -210,7 +260,7 @@ macro_rules! gpio {
         $($PXi:ident: ($pxi:ident, $pin_number:expr $(, $MODE:ty)?),)+
     ]) => {
         mod $gpiox {
-            use crate::rcc::{Reset, Enable};
+             use crate::rcc::{Reset, Enable};
              pub struct Parts {
                     $(
                         /// Pin
@@ -377,7 +427,7 @@ gpio!(GPIOG, gpiog, 'G', PGn, [
 impl<const P: char, const N: u8, MODE: Default> Pin<P, N, MODE> {
     fn new() -> Self {
         Self {
-            mode: Default::default(),
+            _mode: Default::default(),
         }
     }
 }
