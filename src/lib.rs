@@ -58,7 +58,8 @@ compile_error!(
 );
 
 #[cfg(feature = "device-selected")]
-use embedded_hal as hal;
+pub use embedded_hal as hal;
+
 pub extern crate stm32g4;
 
 #[cfg(feature = "stm32g431")]
@@ -99,7 +100,6 @@ mod sealed {
 use sealed::Sealed;
 
 /*
-mod gpio;
 mod timer;
 mod pwm;
 mod serial;
