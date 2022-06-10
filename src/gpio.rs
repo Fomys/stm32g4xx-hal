@@ -124,6 +124,38 @@ impl<const I: u8> PinMode for Alternate<I, PushPull> {
     const AFRH: u32 = I as u32;
 }
 
+impl<const I: u8> PinMode for Alternate<I, OpenDrain> {
+    const MODE: u32 = 0b10;
+    const TYPE: u32 = 0b1;
+    const PULL: u32 = 0b00;
+    const AFRL: u32 = I as u32;
+    const AFRH: u32 = I as u32;
+}
+
+impl<const I: u8> PinMode for Alternate<I, PullUp> {
+    const MODE: u32 = 0b10;
+    const TYPE: u32 = 0b0;
+    const PULL: u32 = 0b01;
+    const AFRL: u32 = I as u32;
+    const AFRH: u32 = I as u32;
+}
+
+impl<const I: u8> PinMode for Alternate<I, PullDown> {
+    const MODE: u32 = 0b10;
+    const TYPE: u32 = 0b0;
+    const PULL: u32 = 0b10;
+    const AFRL: u32 = I as u32;
+    const AFRH: u32 = I as u32;
+}
+
+impl<const I: u8> PinMode for Alternate<I, Floating> {
+    const MODE: u32 = 0b10;
+    const TYPE: u32 = 0b0;
+    const PULL: u32 = 0b00;
+    const AFRL: u32 = I as u32;
+    const AFRH: u32 = I as u32;
+}
+
 pub struct Pin<const P: char, const N: u8, MODE = Analog> {
     _mode: PhantomData<MODE>,
 }
@@ -152,7 +184,7 @@ pub struct Pin<const P: char, const N: u8, MODE = Analog> {
 
 impl<const P: char, const N: u8, MODE> Pin<P, N, MODE> {
     // This should be done with From/Into trait so this implementation is due to change at some point
-    fn mode<NewMode: PinMode>(&self) -> Pin<P, N, NewMode> {
+    fn mode<NewMode: PinMode>(self) -> Pin<P, N, NewMode> {
         let gpio = unsafe { &(*Gpio::<P>::ptr()) };
         unsafe {
             // Set the mode in the register N*2 as there is two bits to configure
@@ -181,6 +213,51 @@ impl<const P: char, const N: u8, MODE> Pin<P, N, MODE> {
         Pin {
             _mode: Default::default(),
         }
+    }
+
+    pub fn into_analog(self) -> Pin<P, N, Analog> {
+        self.mode()
+    }
+
+    pub fn into_input_floating(self) -> Pin<P, N, Input<Floating>> {
+        self.mode()
+    }
+    pub fn into_input_pullup(self) -> Pin<P, N, Input<PullUp>> {
+        self.mode()
+    }
+    pub fn into_input_pull_down(self) -> Pin<P, N, Input<PullDown>> {
+        self.mode()
+    }
+    pub fn into_output_push_pull(self) -> Pin<P, N, Output<PushPull>> {
+        self.mode()
+    }
+    pub fn into_output_open_drain(self) -> Pin<P, N, Output<OpenDrain>> {
+        self.mode()
+    }
+
+    /// This implementation is subject to change because all pins can not be assigned to all alternate functions
+    pub fn into_alternate_floating<const I: u8>(self) -> Pin<P, N, Alternate<I, Floating>> {
+        self.mode()
+    }
+
+    /// This implementation is subject to change because all pins can not be assigned to all alternate functions
+    pub fn into_alternate_pull_down<const I: u8>(self) -> Pin<P, N, Alternate<I, PullDown>> {
+        self.mode()
+    }
+
+    /// This implementation is subject to change because all pins can not be assigned to all alternate functions
+    pub fn into_alternate_pull_up<const I: u8>(self) -> Pin<P, N, Alternate<I, PullUp>> {
+        self.mode()
+    }
+
+    /// This implementation is subject to change because all pins can not be assigned to all alternate functions
+    pub fn into_alternate_push_pull<const I: u8>(self) -> Pin<P, N, Alternate<I, PushPull>> {
+        self.mode()
+    }
+
+    /// This implementation is subject to change because all pins can not be assigned to all alternate functions
+    pub fn into_alternate_open_drain<const I: u8>(self) -> Pin<P, N, Alternate<I, OpenDrain>> {
+        self.mode()
     }
 
     #[inline(always)]
