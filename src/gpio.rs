@@ -222,7 +222,7 @@ impl<const P: char, const N: u8, MODE> Pin<P, N, MODE> {
     pub fn into_input_floating(self) -> Pin<P, N, Input<Floating>> {
         self.mode()
     }
-    pub fn into_input_pullup(self) -> Pin<P, N, Input<PullUp>> {
+    pub fn into_input_pull_up(self) -> Pin<P, N, Input<PullUp>> {
         self.mode()
     }
     pub fn into_input_pull_down(self) -> Pin<P, N, Input<PullDown>> {
@@ -324,6 +324,7 @@ impl<const P: char> Gpio<P> {
 //     }
 // }
 
+// TODO: disable RCC on demand, the "inverse" of split
 macro_rules! gpio {
     ($GPIOX:ident, $gpiox:ident, $port_id:expr, $PXn:ident, [
         $($PXi:ident: ($pxi:ident, $pin_number:expr $(, $MODE:ty)?),)+

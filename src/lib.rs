@@ -90,17 +90,18 @@ pub use stm32g4::stm32g491 as pac;
 pub use stm32g4::stm32g4a1 as pac;*/
 
 pub mod gpio;
+pub mod timer;
 // TODO: everything
 pub mod bb;
 pub mod rcc;
 pub mod time;
+
 mod sealed {
     pub trait Sealed {}
 }
 use sealed::Sealed;
 
 /*
-mod timer;
 mod pwm;
 mod serial;
 mod can;
