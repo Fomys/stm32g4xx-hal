@@ -329,7 +329,7 @@ macro_rules! gpio {
     ($GPIOX:ident, $gpiox:ident, $port_id:expr, $PXn:ident, [
         $($PXi:ident: ($pxi:ident, $pin_number:expr $(, $MODE:ty)?),)+
     ]) => {
-        mod $gpiox {
+        pub mod $gpiox {
              use crate::rcc::{Reset, Enable};
              pub struct Parts {
                     $(
