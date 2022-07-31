@@ -13,7 +13,7 @@ use stm32g4xx_hal::pac;
 fn main() -> ! {
     let dp = pac::Peripherals::take().unwrap();
     let gpioa = dp.GPIOA.split();
-    let mut led = gpioa.pa1.into_output_push_pull();
+    let mut led: Pin<'A', 1, Output<PushPull>> = gpioa.pa1.into_output_push_pull();
     loop {
         for _ in 0..100_000 {
             led.set_low().unwrap();

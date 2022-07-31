@@ -6,7 +6,6 @@ use crate::timer::counter::Counter;
 
 pub struct Timer<TIM> {
     tim: TIM,
-    //pub clk
 }
 
 impl<TIM> Timer<TIM>
@@ -22,7 +21,7 @@ where
 }
 
 impl<TIM> Timer<TIM> {
-    fn release(self) -> TIM {
+    pub fn release(self) -> TIM {
         self.tim
     }
 }
